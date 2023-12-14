@@ -1,8 +1,8 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request
 import requests
 import os
 import json
+
 app = Flask(__name__)
 
 def get_api_key() -> str:
@@ -10,44 +10,45 @@ def get_api_key() -> str:
     if secret:
         return secret
     else:
-        #local testing
+        # local testing
         with open('.key') as f:
             return f.read()
-      
+
 @app.route("/")
 def hello():
     return "Add workers to the Spark cluster with a POST request to add"
 
 @app.route("/test")
 def test():
-    #revdbturn "Test" # testing 
-    return(get_api_key())
+    return get_api_key()
 
-@app.route("/add",methods=['GET','POST'])
+@app.route("/add", methods=['POST'])
 def add():
-  if request.method=='GET':
-    return "Use post to add" # replace with form template
-  else:
-    token=get_api_key()
-    ret = addWorker(token,request.form['num'])
-    return ret
-
+    if request.method == 'POST':
+        token = get_api_key()
+        num = request.json['num']
+        ret = addWorker(token, num)
+        return ret
+    else:
+        return "Use POST to add"  # replace with form template
 
 def addWorker(token, num):
     with open('payload.json') as p:
-      tdata=json.load(p)
-    tdata['name']='slave'+str(num)
-    data=json.dumps(tdata)
-    url='https://www.googleapis.com/compute/v1/projects/spark-371009/zones/europe-west1-b/instances'
-    headers={"Authorization": "Bearer "+token}
-    resp=requests.post(url,headers=headers, data=data)
-    if resp.status_code==200:     
-      return "Done"
+        tdata = json.load(p)
+    
+    tdata['name'] = 'slave' + str(num)
+    data = json.dumps(tdata)
+    
+    url = 'https://www.googleapis.com/compute/v1/projects/spark-371009/zones/europe-west1-b/instances'
+    headers = {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
+    
+    resp = requests.post(url, headers=headers, data=data)
+    
+    if resp.status_code == 200:
+        return "Done"
     else:
-      print(resp.content)
-      return "Error\n"+resp.content.decode('utf-8') + '\n\n\n'+data
-
-
+        print(resp.content)
+        return "Error\n" + resp.content.decode('utf-8') + '\n\n\n' + data
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',port='8080')
+    app.run(host='0.0.0.0', port='8080')
