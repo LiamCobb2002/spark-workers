@@ -38,7 +38,7 @@ def addWorker(token, num):
       tdata=json.load(p)
     tdata['name']='slave'+str(num)
     data=json.dumps(tdata)
-    url='https://www.googleapis.com/compute/v1/projects/feisty-vector-406610/zones/europe-west1-b/instances'
+    url='https://www.googleapis.com/compute/v1/projects/stable-century-406612/zones/europe-west1-b/instances'
     headers={"Authorization": "Bearer "+token}
     resp=requests.post(url,headers=headers, data=data)
     if resp.status_code==200:     
