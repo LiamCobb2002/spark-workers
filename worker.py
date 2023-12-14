@@ -20,7 +20,7 @@ def hello():
 
 @app.route("/test")
 def test():
-    #revdbturn "Test" # testing 
+    #return "Test" # testing 
     return(get_api_key())
 
 @app.route("/add",methods=['GET','POST'])
